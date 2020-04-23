@@ -8,8 +8,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pickle
 from random import shuffle
-from scipy.misc import imread
-from scipy.misc import imresize
+from imageio import imread
+# from scipy.misc import imresize
+from PIL import Image
 import tensorflow as tf
 
 from ssd import SSD300
@@ -184,7 +185,9 @@ class Generator(object):
                 y = self.gt[key].copy()
                 if train and self.do_crop:
                     img, y = self.random_sized_crop(img, y)
-                img = imresize(img, self.image_size).astype('float32')
+                #img = imresize(img, self.image_size).astype('float32')
+                img = np.array(Image.fromarray(img).resize(
+                    self.image_size, resample=2))
                 # boxの位置は正規化されているから画像をリサイズしても
                 # 教師信号としては問題ない
                 if train:
