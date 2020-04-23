@@ -20,3 +20,5 @@ RUN set -x \
 RUN mkdir -p /workspace
 ENV HOME /workspace
 WORKDIR /workspace
+
+CMD ["python3" "train.py"]

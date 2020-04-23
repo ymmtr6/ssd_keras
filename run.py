@@ -1,4 +1,5 @@
 import cv2
+import os
 import keras
 from keras.applications.imagenet_utils import preprocess_input
 from keras.backend.tensorflow_backend import set_session
@@ -63,7 +64,7 @@ for i, img in enumerate(images):
 
     colors = plt.cm.hsv(np.linspace(0, 1, 21)).tolist()
 
-    plt.imshow(img / 255.)
+    #plt.imshow(img / 255.)
     currentAxis = plt.gca()
 
     for i in range(top_conf.shape[0]):
@@ -82,4 +83,5 @@ for i, img in enumerate(images):
         currentAxis.text(xmin, ymin, display_txt, bbox={
                          'facecolor': color, 'alpha': 0.5})
 
-    plt.show()
+    # plt.show()
+    plt.savefig(os.path.join("pics", "output.png"))

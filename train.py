@@ -1,4 +1,5 @@
 import cv2
+import os
 import keras
 from keras.applications.imagenet_utils import preprocess_input
 from keras.backend.tensorflow_backend import set_session
@@ -8,8 +9,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pickle
 from random import shuffle
-from scipy.misc import imread
-from scipy.misc import imresize
+from imageio import imread
+# from scipy.misc import imresize
+from PIL import Image
 import tensorflow as tf
 
 from ssd import SSD300
@@ -184,7 +186,9 @@ class Generator(object):
                 y = self.gt[key].copy()
                 if train and self.do_crop:
                     img, y = self.random_sized_crop(img, y)
-                img = imresize(img, self.image_size).astype('float32')
+                #img = imresize(img, self.image_size).astype('float32')
+                img = np.array(Image.fromarray(img.astype(np.uint8)).resize(
+                    self.image_size, resample=2)).astype("float32")
                 # boxの位置は正規化されているから画像をリサイズしても
                 # 教師信号としては問題ない
                 if train:
@@ -213,21 +217,24 @@ class Generator(object):
 
 # PATH_PREFIX = ./VOCdevkit/VOC2007/JPEGImages/
 path_prefix = cf.PATH_PREFIX
-gen = Generator(gt, bbox_util, 4, path_prefix,
+batch_size = cf.BATCH_SIZE
+gen = Generator(gt, bbox_util, batch_size, path_prefix,
                 train_keys, val_keys,
                 (input_shape[0], input_shape[1]), do_crop=False)
 
 model = SSD300(input_shape, num_classes=NUM_CLASSES)
-model.load_weights(cf.WEIGHTS, by_name=True)
+# Weightsがない場合は、freezeしない
+if os.path.exists(cf.WEIGHTS):
+    model.load_weights(cf.WEIGHTS, by_name=True)
 
-freeze = ['input_1', 'conv1_1', 'conv1_2', 'pool1',
-          'conv2_1', 'conv2_2', 'pool2',
-          'conv3_1', 'conv3_2', 'conv3_3', 'pool3']  # ,
-#           'conv4_1', 'conv4_2', 'conv4_3', 'pool4']
-
-for L in model.layers:
-    if L.name in freeze:
-        L.trainable = False
+    # 事前学習は入力層を固定する。
+    freeze = ['input_1', 'conv1_1', 'conv1_2', 'pool1',
+              'conv2_1', 'conv2_2', 'pool2',
+              'conv3_1', 'conv3_2', 'conv3_3', 'pool3']  # ,
+    #           'conv4_1', 'conv4_2', 'conv4_3', 'pool4']
+    for L in model.layers:
+        if L.name in freeze:
+            L.trainable = False
 
 
 def schedule(epoch, decay=0.9):
@@ -239,12 +246,12 @@ callbacks = [keras.callbacks.ModelCheckpoint('./checkpoints/weights.{epoch:02d}-
                                              save_weights_only=True),
              keras.callbacks.LearningRateScheduler(schedule)]
 
-base_lr = 3e-4
+base_lr = cf.BASE_LR
 optim = keras.optimizers.Adam(lr=base_lr)
 model.compile(optimizer=optim,
-              loss=MultiboxLoss(NUM_CLASSES, neg_pos_ratio=2.0).compute_loss)
+              loss=MultiboxLoss(NUM_CLASSES, neg_pos_ratio=cf.NEG_POS_RATIO).compute_loss)
 
-nb_epoch = 100
+nb_epoch = cf.EPOCHS
 history = model.fit_generator(gen.generate(True), gen.train_batches,
                               nb_epoch, verbose=1,
                               callbacks=callbacks,
@@ -252,6 +259,9 @@ history = model.fit_generator(gen.generate(True), gen.train_batches,
                               nb_val_samples=gen.val_batches,
                               nb_worker=1)
 
+model.save_weights(cf.WEIGHTS, overwrite=True)
+
+"""
 inputs = []
 images = []
 img_path = path_prefix + sorted(val_keys)[0]
@@ -263,6 +273,7 @@ inputs = preprocess_input(np.array(inputs))
 
 preds = model.predict(inputs, batch_size=1, verbose=1)
 results = bbox_util.detection_out(preds)
+
 
 for i, img in enumerate(images):
     # Parse the outputs.
@@ -305,3 +316,4 @@ for i, img in enumerate(images):
                          'facecolor': color, 'alpha': 0.5})
 
     plt.show()
+"""
