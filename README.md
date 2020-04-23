@@ -118,7 +118,8 @@ $ python3 train.py
 * https://qiita.com/ttskng/items/4f67f4bbda2568229956
 * https://qiita.com/slowsingle/items/64cc927bb29a49a7af14
 
-##　変更履歴
+
+## 変更履歴
 
 * Dockerfileの配置に伴い、requirements.txtを移動。gpu対応。
 * scipy 1.3.0　では、scipy.misc.imreadがdeprecatedなので、同じ処理を行うimageioに変更
