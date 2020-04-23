@@ -61,6 +61,48 @@ $ python3 run.py
 1. config.pyのDATA_PKLのパスを変更
 1. train.py
 
+### (参考)PASCALVOCの学習を行う場合
+
+1. VOC2007データセットのダウンロード
+```
+$ wget http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtrainval_06-Nov-2007.tar
+$ wget http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtest_06-Nov-2007.tar
+
+$ tar -xvf VOCtarinval_06-Nov-2007.tar
+$ tar -xvf VOCtest_06-Nov-2007.tar
+```
+すると、以下の様に展開される
+```
+├── VOCdevkit
+│   └── VOC2007
+│       ├── Annotations
+│       ├── ImageSets
+│       │   ├── Layout
+│       │   ├── Main
+│       │   └── Segmentation
+│       ├── JPEGImages
+│       ├── SegmentationClass
+│       └── SegmentationObject
+```
+
+1. 教師データをpklにまとめる。
+
+ROOTからAnnotationsまでのパスをPASCAL_VOC/get_data_from_XML.pyの下部に記載する。また、吐き出すファイル名を指定する。
+```
+# example on how to use it
+data = XML_preprocessor('VOCdevkit/VOC2007/Annotations/').data
+pickle.dump(data, open('VOC2007.pkl', 'wb'))
+```
+
+そのあと実行。
+
+```
+$ cd ssd_keras
+$ python3 PASCAL_VOC/get_data_from_XML.py
+```
+
+
+
 ## 参考資料
 
 * https://arkouji.cocolog-nifty.com/blog/2018/01/tensorflowkeras.html

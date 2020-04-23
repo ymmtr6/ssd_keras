@@ -1,6 +1,12 @@
+import pickle
 import numpy as np
 import os
 from xml.etree import ElementTree
+
+"""
+一番下にAnnotationディレクトリを指定する！！
+"""
+
 
 class XML_preprocessor(object):
 
@@ -26,7 +32,7 @@ class XML_preprocessor(object):
                     ymin = float(bounding_box.find('ymin').text)/height
                     xmax = float(bounding_box.find('xmax').text)/width
                     ymax = float(bounding_box.find('ymax').text)/height
-                bounding_box = [xmin,ymin,xmax,ymax]
+                bounding_box = [xmin, ymin, xmax, ymax]
                 bounding_boxes.append(bounding_box)
                 class_name = object_tree.find('name').text
                 one_hot_class = self._to_one_hot(class_name)
@@ -37,7 +43,7 @@ class XML_preprocessor(object):
             image_data = np.hstack((bounding_boxes, one_hot_classes))
             self.data[image_name] = image_data
 
-    def _to_one_hot(self,name):
+    def _to_one_hot(self, name):
         one_hot_vector = [0] * self.num_classes
         if name == 'aeroplane':
             one_hot_vector[0] = 1
@@ -80,12 +86,11 @@ class XML_preprocessor(object):
         elif name == 'tvmonitor':
             one_hot_vector[19] = 1
         else:
-            print('unknown label: %s' %name)
+            print('unknown label: %s' % name)
 
         return one_hot_vector
 
-## example on how to use it
-# import pickle
-# data = XML_preprocessor('VOC2007/Annotations/').data
-# pickle.dump(data,open('VOC2007.p','wb'))
 
+# example on how to use it
+data = XML_preprocessor('VOCdevkit/VOC2007/Annotations/').data
+pickle.dump(data, open('VOC2007.pkl', 'wb'))
