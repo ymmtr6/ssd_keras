@@ -25,11 +25,30 @@ keras2で動作する様にカスタマイズしたSingleShotMultiboxDetector。
 * Python3.7.4
 
 動作環境はDockerイメージを用意。
+```
+$ docker pull ymmtr6/ssd_keras
+```
+
+or 
+
+```
+$ docker pull ymmtr6/ssd_keras:gpu
+```
 
 ## RUN
 
 デフォルトでは、picsディレクトリの中から1枚指定してdetectionを行う。
 ```
+$ cd ssd_keras
+$ docker run -it --rm -v `pwd`:/workspace --name ssd_keras ymmtr6/ssd_keras bash
+$ python3 run.py
+```
+
+or
+
+```
+$ cd ssd_keras
+$ docker run -it --rm --runtime nvidia -v `pwd`:/workspace --name ssd_keras ymmtr6/ssd_keras:gpu bash
 $ python3 run.py
 ```
 
