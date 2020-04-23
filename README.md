@@ -29,11 +29,15 @@ keras2で動作する様にカスタマイズしたSingleShotMultiboxDetector。
 $ docker pull ymmtr6/ssd_keras
 ```
 
-or 
 
+GPU版はこちら
 ```
 $ docker pull ymmtr6/ssd_keras:gpu
 ```
+
+学習済モデル[pre-trained model](https://github.com/ymmtr6/ssd_keras/releases/download/1.0/weights_SSD300.hdf5)
+
+論文ではVGG16のpretrainを行っているため、モデルの流用を行う場合は精度が出ない可能性がある。**VGG16のpretrainはそのうち実装予定**。
 
 ## RUN
 
@@ -44,8 +48,7 @@ $ docker run -it --rm -v `pwd`:/workspace --name ssd_keras ymmtr6/ssd_keras bash
 $ python3 run.py
 ```
 
-or
-
+GPU版はこちら
 ```
 $ cd ssd_keras
 $ docker run -it --rm --runtime nvidia -v `pwd`:/workspace --name ssd_keras ymmtr6/ssd_keras:gpu bash
@@ -101,14 +104,19 @@ $ cd ssd_keras
 $ python3 PASCAL_VOC/get_data_from_XML.py
 ```
 
+1. 学習を行う。
 
+config.pyを環境に合わせたあと、
+```
+$ python3 train.py
+```
+を実行するれば稼働する。実行途中の重みはcheckpoints/に保存されていく。
 
 ## 参考資料
 
 * https://arkouji.cocolog-nifty.com/blog/2018/01/tensorflowkeras.html
 * https://qiita.com/ttskng/items/4f67f4bbda2568229956
 * https://qiita.com/slowsingle/items/64cc927bb29a49a7af14
-
 
 ##　変更履歴
 
