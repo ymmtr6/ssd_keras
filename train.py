@@ -217,12 +217,13 @@ class Generator(object):
 
 # PATH_PREFIX = ./VOCdevkit/VOC2007/JPEGImages/
 path_prefix = cf.PATH_PREFIX
-gen = Generator(gt, bbox_util, 4, path_prefix,
+batch_size = cf.BATCH_SIZE
+gen = Generator(gt, bbox_util, batch_size, path_prefix,
                 train_keys, val_keys,
                 (input_shape[0], input_shape[1]), do_crop=False)
 
 model = SSD300(input_shape, num_classes=NUM_CLASSES)
-# 追加学習
+# Weightsがない場合は、freezeしない
 if os.path.exists(cf.WEIGHTS):
     model.load_weights(cf.WEIGHTS, by_name=True)
 
@@ -245,12 +246,12 @@ callbacks = [keras.callbacks.ModelCheckpoint('./checkpoints/weights.{epoch:02d}-
                                              save_weights_only=True),
              keras.callbacks.LearningRateScheduler(schedule)]
 
-base_lr = 3e-4
+base_lr = cf.BASE_LR
 optim = keras.optimizers.Adam(lr=base_lr)
 model.compile(optimizer=optim,
-              loss=MultiboxLoss(NUM_CLASSES, neg_pos_ratio=2.0).compute_loss)
+              loss=MultiboxLoss(NUM_CLASSES, neg_pos_ratio=cf.NEG_POS_RATIO).compute_loss)
 
-nb_epoch = 100
+nb_epoch = cf.EPOCHS
 history = model.fit_generator(gen.generate(True), gen.train_batches,
                               nb_epoch, verbose=1,
                               callbacks=callbacks,
@@ -258,6 +259,9 @@ history = model.fit_generator(gen.generate(True), gen.train_batches,
                               nb_val_samples=gen.val_batches,
                               nb_worker=1)
 
+model.save_weights(cf.WEIGHTS, overwrite=True)
+
+"""
 inputs = []
 images = []
 img_path = path_prefix + sorted(val_keys)[0]
@@ -269,6 +273,7 @@ inputs = preprocess_input(np.array(inputs))
 
 preds = model.predict(inputs, batch_size=1, verbose=1)
 results = bbox_util.detection_out(preds)
+
 
 for i, img in enumerate(images):
     # Parse the outputs.
@@ -311,3 +316,4 @@ for i, img in enumerate(images):
                          'facecolor': color, 'alpha': 0.5})
 
     plt.show()
+"""
