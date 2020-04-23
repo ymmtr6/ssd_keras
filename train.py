@@ -187,8 +187,8 @@ class Generator(object):
                 if train and self.do_crop:
                     img, y = self.random_sized_crop(img, y)
                 #img = imresize(img, self.image_size).astype('float32')
-                img = np.array(Image.fromarray(img).resize(
-                    self.image_size, resample=2))
+                img = np.array(Image.fromarray(img.astype(np.uint8)).resize(
+                    self.image_size, resample=2)).astype("float32")
                 # boxの位置は正規化されているから画像をリサイズしても
                 # 教師信号としては問題ない
                 if train:
