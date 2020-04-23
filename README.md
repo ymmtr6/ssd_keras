@@ -11,9 +11,10 @@ This code was tested with `Keras` v1.2.2, `Tensorflow` v1.0.0, `OpenCV` v3.1.0-d
 
 keras2で動作する様にカスタマイズしたSingleShotMultiboxDetector。
 [rykkov8/ssd_keras](https://github.com/rykov8/ssd_keras)のコードを流用している。
+わからないことが合ったら、本家GithubのIssueを見れば大体書いてる。
 
 
-## environment
+## Environment
 
 動作確認ライブラリは[requirements.txt](requirements.txt)を参照。
 * Tensorflow 1.13
@@ -25,11 +26,26 @@ keras2で動作する様にカスタマイズしたSingleShotMultiboxDetector。
 
 動作環境はDockerイメージを用意。
 
-## 学習について
+## RUN
+
+デフォルトでは、picsディレクトリの中から1枚指定してdetectionを行う。
+```
+$ python3 run.py
+```
+
+## Train
+
+未検証。多分これでうごくと思います（適当）
+
+1. データセットをディレクトリ配下に生やす
+1. PASCAL_VOC/get_data_from_XML.pyでpklファイルを作成
+1. config.pyのDATA_PKLのパスを変更
+1. train.py
+
+## 参考資料
 
 * https://arkouji.cocolog-nifty.com/blog/2018/01/tensorflowkeras.html
 * https://qiita.com/ttskng/items/4f67f4bbda2568229956
-* 
 
 ##　変更履歴
 
